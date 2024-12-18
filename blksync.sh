@@ -1,34 +1,34 @@
 #!/usr/bin/bash
 
-# ce script permet la synchronisation au niveau bloc du disque système
-# (SSD#1 0x11111111) vers le disque système de secours (SSD#2 0x222222).
+# this script enables block-level synchronization of the system disk
+# (SSD#1 0x11111111) to the backup system disk (SSD#2 0x222222).
 #
-# les deux premières partitions (ESP/LUKS) doivent avoir la même taille.
+# the first two partitions (ESP/Linux) MUST have the same size.
 #
-# Disque /dev/sda : 465,76 GiB, 500107862016 octets, 976773168 secteurs
-# Modèle de disque : Portable SSD T5 
-# Unités : secteur de 1 × 512 = 512 octets
-# Taille de secteur (logique / physique) : 512 octets / 512 octets
-# taille d'E/S (minimale / optimale) : 512 octets / 33553920 octets
-# Type d'étiquette de disque : dos
-# Identifiant de disque : 0x11111111
-# Périphérique Amorçage     Début       Fin  Secteurs Taille Id Type
-# /dev/sda1    *             2048    264191    262144   128M ef EFI (FAT-12/16/32)
-# /dev/sda2                264192 268699647 268435456   128G 83 Linux
-# /dev/sda3             268699648 369362943 100663296    48G  7 HPFS/NTFS/exFAT
-# /dev/sda4             369362944 906217979 536855036   256G 83 Linux
+# Disk /dev/sda: 465.76 GiB, 500107862016 bytes, 976773168 sectors
+# Disk model: Portable SSD
+# Units: sectors of 1 * 512 = 512 bytes
+# Sector size (logical/physical): 512 bytes / 512 bytes
+# I/O size (minimum/optimal): 512 bytes / 33553920 bytes
+# Disklabel type: dos
+# Disk identifier: 0x11111111
+# Device     Boot     Start       End   Sectors  Size Id Type
+# /dev/sda1  *         2048    264191    262144  128M ef EFI (FAT-12/16/32)
+# /dev/sda2          264192 268699647 268435456  128G 83 Linux
+# /dev/sda3       268699648 369362943 100663296   48G  7 HPFS/NTFS/exFAT
+# /dev/sda4       369362944 906217979 536855036  256G 83 Linux
 #
-# Disque /dev/sdb : 223,57 GiB, 240057409536 octets, 468862128 secteurs
-# Modèle de disque : SABRENT         
-# Unités : secteur de 1 × 512 = 512 octets
-# Taille de secteur (logique / physique) : 512 octets / 512 octets
-# taille d'E/S (minimale / optimale) : 4096 octets / 4096 octets
-# Type d'étiquette de disque : dos
-# Identifiant de disque : 0x22222222
-# Périphérique Amorçage     Début       Fin  Secteurs Taille Id Type
-# /dev/sdb1    *             2048    264191    262144   128M ef EFI (FAT-12/16/32)
-# /dev/sdb2                264192 268699647 268435456   128G 83 Linux
-# /dev/sdb3             268699648 436471807 167772160    80G  6 FAT16
+# Disk /dev/sdb : 223,57 GiB, 240057409536 bytes, 468862128 sectors
+# Disk model: SABRENT         
+# Units: sectors of 1 × 512 = 512 bytes
+# Sector size (logical/physical): 512 bytes / 512 bytes
+# I/O size (minimum/optimal): 4096 bytes / 4096 bytes
+# Disklabel type : dos
+# Disk identifier : 0x22222222
+# Device     Boot     Start       End   Sectors  Size Id Type
+# /dev/sdb1  *         2048    264191    262144  128M ef EFI (FAT-12/16/32)
+# /dev/sdb2          264192 268699647 268435456  128G 83 Linux
+# /dev/sdb3       268699648 436471807 167772160   80G  6 FAT16
 
 
 set -o errexit
