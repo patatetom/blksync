@@ -36,21 +36,21 @@ set -o nounset
 set -o pipefail
 
 
-# libération éventuelle du système
+# possible release of system
 _finish() {
-	# saut de ligne si interruption (Ctrl-C durant blocksync-fast)
+	# line feed if interrupted (Ctrl-C during blocksync-fast)
 	echo -n $'\e[6n'
 	read -srdR cursor
 	(( ${cursor#*;} != 1 )) &&
 		echo $'\n'
 	echo -n $'\e[0m'
-	# remontage éventuel de ESP#1
+	# remount ESP#1 if necessary
 	[[ -n "${_esp:-}" ]] &&
-		echo ". remontage de la partition système ESP" &&
+		echo ". remount ESP system partition" &&
 			mount "/dev/${input}1" "${esp}"
-	# réactivation éventuelle de LUKS#1
+	# wake up LUKS#1 if necessary
 	[[ -n "${_luks:-}" ]] &&
-		echo ". réactivation de la partition système LUKS" &&
+		echo ". wake up LUKS system partition" &&
 			fsfreeze --unfreeze "${luks}" &&
 				sync --file-system "${luks}"
 }
