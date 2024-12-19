@@ -31,6 +31,12 @@
 # /dev/sdb3       268699648 436471807 167772160   80G  6 FAT16
 
 
+# SSD#1 & SSD#2 identifier
+# use `lsblk --nodeps --output +PtUUId` to get disks identifier (PtUUId)
+input='11111111'
+output='22222222'
+
+
 set -o errexit
 set -o nounset
 set -o pipefail
@@ -58,7 +64,6 @@ trap _finish EXIT
 
 
 # SSD#1 identification
-input='11111111'
 readonly input=$(
 	lsblk --noheadings --nodeps --output KNAME --filter "PTUUID=='${input}'"
 )
@@ -66,7 +71,6 @@ readonly input=$(
 	echo "! missing system disk" >&2 &&
 		exit 1
 # SSD#2 identification
-output='22222222'
 readonly output=$(
 	lsblk --noheadings --nodeps --output KNAME --filter "PTUUID=='${output}'"
 )
