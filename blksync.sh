@@ -57,70 +57,70 @@ _finish() {
 trap _finish EXIT
 
 
-# identification de SSD#1
+# SSD#1 identification
 input='11111111'
 readonly input=$(
 	lsblk --noheadings --nodeps --output KNAME --filter "PTUUID=='${input}'"
 )
 [[ -z "${input}" ]] &&
-	echo "! disque système manquant" >&2 &&
+	echo "! missing system disk" >&2 &&
 		exit 1
-# identification de SSD#2
+# SSD#2 identification
 output='22222222'
 readonly output=$(
 	lsblk --noheadings --nodeps --output KNAME --filter "PTUUID=='${output}'"
 )
 [[ -z "${output}" ]] &&
-	echo "! disque système de secours manquant" >&2 &&
+	echo "! missing backup system disk" >&2 &&
 		exit 1
 
 
-# vérification du non montage de SSD#2
+# check that SSD#2 is not mounted
 [[ -n "$(
 	lsblk --noheadings --output mountpoint --filter "kname=='${output}1'"
 )" || -n "$(
 	lsblk --noheadings --output mountpoint --filter "pkname=='${output}2'"
 )" ]] &&
-	echo "! le disque système de secours est monté" >&2 &&
+	echo "! backup system disk is mounted" >&2 &&
 		exit 1
 
 
-# vérification de la taille des ESP
+# checking ESP size
 [[ $(
 	lsblk --noheadings --nodeps --output SIZE --bytes "/dev/${input}1"
 ) != $(
 	lsblk --noheadings --nodeps --output SIZE --bytes "/dev/${output}1"
 ) ]] &&
-	echo "! la taille des partitions ESP diffère" >&2 &&
+	echo "! ESP partitions differ in size" >&2 &&
 		exit 1
-# vérification de la taille des LUKS
+# check LUKS size
 [[ $(
 	lsblk --noheadings --nodeps --output SIZE --bytes "/dev/${input}2"
 ) != $(
 	lsblk --noheadings --nodeps --output SIZE --bytes "/dev/${output}2"
 ) ]] &&
-	echo "! la taille des partitions LUKS diffère" >&2 &&
+	echo "! LUKS partitions differ in size" >&2 &&
 		exit 1
 
 
-# avertissement montage ESP#1
+# warning ESP#1
 readonly esp=$( awk "\$1~/\/dev\/${input}1/{print \$2}" /proc/mounts )
 [[ -n "${esp}" ]] &&
-	echo ". la partition système ESP sera inaccessible durant l'opération"
-# avertissement montage LUKS#1
+	echo ". ESP system partition will be inaccessible during operation"
+# warning LUKS#1
 readonly luks=$( lsblk --noheadings --output mountpoint --filter "pkname=='${input}2'" )
 [[ -n "${luks}" ]] &&
-	echo ". la partition système LUKS sera inaccessible durant l'opération"
+	echo ". LUKS system partition will be inaccessible during the operation"
 
 
 # validation de la synchronisation
 read -r -s -p \
-$'\e[1;33m!\e[0m synchronisation de \e[1m'\
+$'\e[1;33m!\e[0m synchronization of \e[1m'\
 "$( lsblk --noheadings --nodeps --output model "/dev/${input}" )"\
-$'\e[0m vers \e[1;33m'\
+$'\e[0m to \e[1;33m'\
 "$( lsblk --noheadings --nodeps --output model "/dev/${output}" )"\
 $'\e[0m\n'\
-"? continuer (Entrer) ou annuler (Ctrl-C)"$'\n'
+"? continue (Enter) or cancel (Ctrl-C)"$'\n'
 
 
 # démontage ESP#1 (mise en veille FAT32 non supportée)
