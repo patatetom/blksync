@@ -113,7 +113,7 @@ readonly luks=$( lsblk --noheadings --output mountpoint --filter "pkname=='${inp
 	echo ". LUKS system partition will be inaccessible during the operation"
 
 
-# validation de la synchronisation
+# synchronization validation
 read -r -s -p \
 $'\e[1;33m!\e[0m synchronization of \e[1m'\
 "$( lsblk --noheadings --nodeps --output model "/dev/${input}" )"\
@@ -123,40 +123,40 @@ $'\e[0m\n'\
 "? continue (Enter) or cancel (Ctrl-C)"$'\n'
 
 
-# démontage ESP#1 (mise en veille FAT32 non supportée)
-# (_esp et _luks sont des marqueurs utilisés par _finish)
+# ESP#1 unmount (FAT32 standby not supported)
+# (_esp and _luks are markers used by _finish)
 sync --file-system "${esp}"
 sysctl --quiet vm.drop_caches=3
 [[ -n "${esp}" ]] &&
-	echo ". démontage de la partition système ESP" &&
+	echo ". unmounting ESP system partition" &&
 		umount --lazy "${esp}"
 _esp=x
-# mise en veille de LUKS1#1
+# LUKS1#1 standby
 sync --file-system "${luks}"
 sysctl --quiet vm.drop_caches=3
 [[ -n "${luks}" ]] &&
-	echo ". mise en veille de la partition système LUKS" &&
+	echo ". LUKS system partition standby" &&
 		fsfreeze --freeze "${luks}"
 _luks=x
 
 
-# la synchronisation niveau bloc repose sur blocksync-fat
+# block-level synchronization based on blocksync-fat
 # https://github.com/nethappen/blocksync-fast
-# décommenter la variable dry pour tester le script
+# uncomment the dry variable to test the script
 #dry="--dont-write"
 bin="blocksync-fast"
 opt=( --block-size=4M --buffer-size=64M --sync-writes --show-progress )
-# synchronisation niveau bloc de ESP#1 vers ESP#2
+# block-level synchronization from ESP#1 to ESP#2
 echo
 "$bin" "${dry:-}" --src="/dev/${input}1" --dst="/dev/${output}1" "${opt[@]}"
-# synchronisation niveau bloc de LUKS#1 vers LUKS#2
-# (la durée de cette synchronisation dépend de la taille de la partition,
-# du volume des changements introduits, de la vitesse des bus empruntés et
-# de la velocité des périphériques utilisés)
+# block-level synchronization from LUKS#1 to LUKS#2
+# (duration of synchronization depends on size of partition,
+# volume of changes introduced, speed of buses used and
+# velocity of the devices used)
 echo $'\e[33m'
 "$bin" "${dry:-}" --src="/dev/${input}2" --dst="/dev/${output}2"  "${opt[@]}"
 echo $'\e[32m'
-echo ". le disque système de secours peut être débranché"
+echo ". backup system disk can be disconnected"
 
 
 # ~15 minutes pour synchroniser 128Go
